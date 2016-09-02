@@ -14,6 +14,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import tannv.app.ToolsApplication;
 
@@ -116,7 +117,7 @@ public class GoogleSheetController {
 
 
     @RequestMapping("/read-from-google")
-    public String getFromGoogle() {
+    public String getFromGoogle(Model model) {
         // Build a new authorized API client service.
         try {
 
@@ -130,6 +131,8 @@ public class GoogleSheetController {
                     .get(spreadsheetId, range)
                     .execute();
             List<List<Object>> values = response.getValues();
+            model.addAttribute("returnSize",values.size());
+            model.addAttribute("list",values);
             if (values == null || values.size() == 0) {
                 System.out.println("No data found.");
             } else {
