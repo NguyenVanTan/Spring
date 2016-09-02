@@ -34,6 +34,8 @@ public class GoogleSheetController {
     private static final String APPLICATION_NAME =
             "Google Sheets API Java Quickstart";
 
+
+
     /**
      * Directory to store user credentials for this application.
      */
@@ -84,7 +86,7 @@ public class GoogleSheetController {
     public static Credential authorize() throws IOException {
         // Load client secrets.
         InputStream in =
-                ToolsApplication.class.getResourceAsStream("/static/client_secret.json");
+                ToolsApplication.class.getResourceAsStream("/client_secret.json");
         GoogleClientSecrets clientSecrets =
                 GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
