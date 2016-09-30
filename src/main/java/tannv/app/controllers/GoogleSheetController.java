@@ -21,8 +21,10 @@ import tannv.app.ToolsApplication;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by nguyen.van.tan on 9/3/16.
@@ -35,12 +37,12 @@ public class GoogleSheetController {
             "Google Sheets API Java Quickstart";
 
 
-
     /**
      * Directory to store user credentials for this application.
      */
     private static final java.io.File DATA_STORE_DIR = new java.io.File(
             System.getProperty("user.home"), ".credentials/sheets.googleapis.com-java-quickstart");
+    private static final String LATE_COLMN = "Late" ;
 
     /**
      * Global instance of the {@link FileDataStoreFactory}.
@@ -127,27 +129,61 @@ public class GoogleSheetController {
 
             // Prints the names and majors of students in a sample spreadsheet:
             // https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-            String spreadsheetId = "1XfAxzV_1fcYSHXeElY4RSQLilKkOhlU5_Dxp2AXXhjQ";
-            String range = "Sep2016!A3:I";
+            String spreadsheetId = "1PXCc0Sgk8ba1Vr5yH8n6EgMt2qn4c11WPIQh0Fk3l20";
+            String range = "Sep2016!A1:O";
             ValueRange response = service.spreadsheets().values()
                     .get(spreadsheetId, range)
                     .execute();
+
             List<List<Object>> values = response.getValues();
-            model.addAttribute("returnSize",values.size());
-            model.addAttribute("list",values);
+            Map<String,List<List<String>>> mapbyStaff=new HashMap<>() ;
+            List<String> lefFromTo;
+            for (List<Object> objects: values ) {
+                 lefFromTo=new ArrayList<>();
+                Boolean isAprove;
+                if(objects.size()>=15) {
+                    isAprove=(objects.get(12).equals(objects.get(13)) && objects.get(13).equals(objects.get(14) ) && objects.get(14).equals("Approve"));
+                }else
+                {
+                    isAprove=false;
+                }
+                lefFromTo.add((String)objects.get(1));
+                lefFromTo.add((String)objects.get(2)) ;
+                lefFromTo.add((String)objects.get(3)) ;
+                lefFromTo.add((String)objects.get(11)) ;
+                lefFromTo.add(isAprove.toString()) ;
+
+                String key = (String) objects.get(1);
+                List<List<String>> currentValues=  mapbyStaff.get(key);
+                if(currentValues ==null)
+                {
+                    currentValues=new ArrayList<>();
+                    currentValues.add(lefFromTo);
+                }else
+                {
+                    currentValues.add(lefFromTo);
+                }
+                mapbyStaff.put(key,currentValues);
+
+            }
+
+
+
             if (values == null || values.size() == 0) {
                 System.out.println("No data found.");
             } else {
                 System.out.println("Name, Major");
-                for (List row : values) {
-                    // Print columns A and E, which correspond to indices 0 and 4.
-                    System.out.printf("%s, %s\n", row.get(0), row.get(4));
-                }
+
             }
+
+            model.addAttribute("map",mapbyStaff);
+
+
         } catch (IOException io) {
         }
 
         return "google/index";
     }
+
 
 }
